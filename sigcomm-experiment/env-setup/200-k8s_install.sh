@@ -43,12 +43,18 @@ function off_swap {
 }
 
 function install_k8s_tools {
-	curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
-	echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
+	sudo mkdir -p /etc/apt/keyrings
+	curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+	echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+	# curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
+	# echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
 	sudo apt-get update -q && \
 	apt-cache madison kubelet
-	sudo apt-get install -qy kubelet=1.19.0-00 kubectl=1.19.0-00 kubeadm=1.19.0-00 --allow-downgrades
+	# sudo apt-get install -qy kubelet=1.19.0-00 kubectl=1.19.0-00 kubeadm=1.19.0-00 --allow-downgrades
+	sudo apt-get install -qy kubelet kubectl kubeadm --allow-downgrades
 	# enable unsafe sysctl options in kubelet configure file
+	mkdir -p /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 	sudo sed -i '/\[Service\]/a\Environment="KUBELET_UNSAFE_SYSCTLS=--allowed-unsafe-sysctls='kernel.shm*,kernel.sem,kernel.msg*,net.core.*'"' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 	sudo systemctl daemon-reload
 	sudo systemctl restart kubelet
