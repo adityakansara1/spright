@@ -41,7 +41,7 @@ series = {SIGCOMM '22}
 }
 ~~~
 
-<!-- ## Description
+## Description
 
 This artifact runs on c220g5 nodes on NSF Cloudlab. 
 
@@ -581,4 +581,3 @@ cp sk_msg_kern.o ../obj/
 
 # Debugging purpose: output bpf_printk()
 sudo cat  /sys/kernel/debug/tracing/trace_pipe
-``` -->
